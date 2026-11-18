@@ -90,7 +90,7 @@ export default function Market() {
           <div className="cardGrid">
             {result.list.map((item) => (
               <a className="itemCard" key={item.id} href={`/items/${encodeURIComponent(item.id)}`}>
-                <div className="itemImage" role="img" aria-label="상품 기본 이미지"><span className="photoIcon" /></div>
+                <img className="itemImage" src="/images/product-default.png" alt="상품 기본 이미지" role="img" />
                 <h2>{item.name}</h2><strong>{item.price.toLocaleString("ko-KR")}원</strong>
               </a>
             ))}

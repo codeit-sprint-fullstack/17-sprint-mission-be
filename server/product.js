@@ -1,14 +1,25 @@
 import mongoose from "mongoose";
 
+const segmenter = new Intl.Segmenter("ko", { granularity: "grapheme" });
+
+function hasValidLength(text, min, max) {
+  let count = 0;
+  for (const _ of segmenter.segment(text)) {
+    count += 1;
+    if (count > max) return false;
+  }
+  return count >= min;
+}
+
 const productSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true, maxlength: 10 },
-    description: { type: String, required: true, trim: true, minlength: 10, maxlength: 100 },
+    name: { type: String, required: true, trim: true, validate: (value) => hasValidLength(value, 1, 10) },
+    description: { type: String, required: true, trim: true, validate: (value) => hasValidLength(value, 10, 100) },
     price: { type: Number, required: true, min: 0, validate: Number.isSafeInteger },
     tags: {
       type: [String],
       required: true,
-      validate: (tags) => tags.length > 0 && tags.every((tag) => tag.length > 0 && tag.length <= 5),
+      validate: (tags) => tags.length > 0 && tags.every((tag) => hasValidLength(tag, 1, 5)),
     },
   },
   { timestamps: true, versionKey: false },

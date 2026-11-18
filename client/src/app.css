@@ -90,44 +90,12 @@
 }
 
 .itemImage {
-  display: grid;
-  place-items: center;
+  display: block;
+  width: 100%;
   aspect-ratio: 1;
+  object-fit: contain;
   margin-bottom: 16px;
-  background: #f3f4f6;
   border-radius: 16px;
-}
-
-.photoIcon {
-  position: relative;
-  width: 38px;
-  height: 30px;
-  overflow: hidden;
-  border: 2px solid #c8cdd4;
-  border-radius: 4px;
-}
-
-.photoIcon::before, .photoIcon::after {
-  position: absolute;
-  content: "";
-}
-
-.photoIcon::before {
-  top: 4px;
-  right: 5px;
-  width: 5px;
-  height: 5px;
-  background: #c8cdd4;
-  border-radius: 50%;
-}
-
-.photoIcon::after {
-  bottom: -13px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #c8cdd4;
-  transform: rotate(45deg);
 }
 
 .itemCard h2 {
@@ -240,5 +208,4 @@
   .action { padding: 10px 16px; }
   .cardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 8px; }
   .formField input, .formField textarea { padding: 12px 16px; }
-  .formField textarea { min-height: 144px; }
 }
