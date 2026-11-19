@@ -1,0 +1,12 @@
+# 패키지 (npm install로 다시 설치)
+node_modules/
+
+# 환경 변수 (DB 주소·비밀번호)
+.env
+
+# 로그
+*.log
+
+# OS / 에디터
+.DS_Store
+.vscode/
