@@ -1,0 +1,54 @@
+# docker에서 실행될 컨테이너를 정의한 문서
+
+services:
+  mongo-db:
+    image: mongo
+    container_name: mission5-db
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - blog-network
+    ports:
+      - "27017:27017"
+
+  mongo-db-express:
+    image: mongo-express
+    container_name: mission5-db-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_URL=mongodb://root:password@mongo-db:27017/
+      - ME_CONFIG_BASICAUTH=false
+    networks:
+      - blog-network
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo-db
+
+  service:
+    container_name: mission5-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: no
+    environment:
+      - NODE_ENV=development
+      # 컨테이너 안에서는 localhost 대신 mongo-db
+      - DB_CONNECT=mongodb://root:password@mongo-db:27017/blog?authSource=admin
+    networks:
+      - blog-network
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app/
+      - /app/node_modules
+    depends_on:
+      - mongo-db
+
+networks:
+  blog-network:
+    name: blog-network
