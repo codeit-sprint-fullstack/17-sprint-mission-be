@@ -88,6 +88,84 @@ app.get("/api/products/:id", async (req, res) => {
   }
 });
 
+//GET 목록조회
+app.get("/api/products", async (req, res) => {
+  //요청 데이터 가져오기
+  const {
+    offset = "0",
+    limit = "10",
+    orderBy = "recent",
+    keyword = "",
+  } = req.query;
+  //offset,limit 숫자 형식 검사
+  if (
+    typeof offset !== "string" ||
+    !/^\d+$/.test(offset) ||
+    typeof limit !== "string" ||
+    !/^\d+$/.test(limit)
+  ) {
+    return res.status(400).json({
+      message: "offset과 limit은 0 이상의 정수여야 합니다.",
+    });
+  }
+  //문자열을 숫자로 변환
+  const skip = Number(offset);
+  const pageSize = Number(limit);
+  //쿼리 파라미터 유효성 검사
+  if (
+    !Number.isSafeInteger(skip) ||
+    !Number.isSafeInteger(pageSize) ||
+    pageSize < 1 ||
+    pageSize > 100 ||
+    orderBy !== "recent" ||
+    typeof keyword !== "string" ||
+    keyword.length > 100
+  ) {
+    return res.status(400).json({
+      message: "조회 조건이 올바르지 않습니다.",
+    });
+  }
+  //검색조건 만들기
+  const filter = {};
+  if (keyword.trim()) {
+    const escapedKeyword = keyword
+      .trim()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    filter.$or = [
+      { name: { $regex: escapedKeyword, $options: "i" } },
+      { description: { $regex: escapedKeyword, $options: "i" } },
+    ];
+  }
+  //MongoDB 작업 및 오류 처리
+  try {
+    //검색, 최신순 정렬, 페이지네이션
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1, _id: -1 })
+      .skip(skip)
+      .limit(pageSize);
+    //검색 결과 전체 상품 개수
+    const totalCount = await Product.countDocuments(filter);
+
+    //목록 조회에 필요한 필드만 선택
+    const list = products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      createdAt: product.createdAt,
+    }));
+    return res.status(200).json({
+      list,
+      totalCount,
+    });
+  } catch (error) {
+    console.error("상품 목록 조회 실패", error);
+    return res.status(500).json({
+      message: "상품 목록 조회 중 서버 오류가 발생했습니다.",
+    });
+  }
+});
+
 //PATCH
 app.patch("/api/products/:id", async (req, res) => {
   //URL에서 상품 ID 가져오기
