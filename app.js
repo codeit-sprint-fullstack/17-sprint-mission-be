@@ -108,7 +108,7 @@ app.patch("/api/products/:id", async (req, res) => {
   if (tags !== undefined) {
     updateData.tags = tags;
   }
-  //수정할 데이터가 없는 경으
+  //수정할 데이터가 없는 경우
   if (Object.keys(updateData).length === 0) {
     return res.status(400).json({
       message: "수정할 상품 정보를 입력해 주세요.",
@@ -151,6 +151,35 @@ app.patch("/api/products/:id", async (req, res) => {
 
     return res.status(500).json({
       message: "상품 수정 중 서버 오류가 발생했습니다.",
+    });
+  }
+});
+
+//DELETE
+app.delete("/api/products/:id", async (req, res) => {
+  const { id } = req.params;
+  //ObjectId 형식검사
+  if (!mongoose.isObjectIdOrHexString(id)) {
+    return res.status(400).json({
+      message: "올바르지 않은 상품 ID입니다.",
+    });
+  }
+  try {
+    //3.MongoDB에서 상품 삭제
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    //4.상품이 없는 경우
+    if (!deletedProduct) {
+      return res.status(404).json({
+        message: "상품을 찾을 수 없습니다.",
+      });
+    }
+    //5.삭제성공
+    return res.status(204).send();
+  } catch (error) {
+    console.error("상품 삭제 실패", error);
+
+    return res.status(500).json({
+      message: "상품 삭제 중 오류가 발생했습니다.",
     });
   }
 });
