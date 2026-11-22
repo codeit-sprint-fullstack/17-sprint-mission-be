@@ -3,9 +3,17 @@ import "dotenv/config";
 import { dbConnect } from "./config/dbConnect.js";
 import Product from "./models/Product.js";
 import mongoose from "mongoose";
+import cors from "cors";
 
 const app = express();
+const frontendOrigin = process.env.FRONTEND_ORIGIN;
 const port = process.env.PORT || 3000;
+
+app.use(
+  cors({
+    origin: frontendOrigin,
+  }),
+);
 app.use(express.json());
 
 //테스트용 health API
