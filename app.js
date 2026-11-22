@@ -49,6 +49,34 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
+app.get("/api/products", async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+
+    //상품 목록에 필요한 필드만 선택
+    const list = products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      tags: product.tags,
+      createdAt: product.createdAt,
+    }));
+    const totalCount = list.length;
+
+    return res.status(200).json({
+      list,
+      totalCount,
+    });
+  } catch (error) {
+    console.error("상품 목록 조회 실패:", error);
+
+    return res.status(500).json({
+      message: "상품 목록 조회 중 서버 오류가 발생했습니다.",
+    });
+  }
+});
+
 //MongoDB 연결 후 Express 서버 실행
 async function startServer() {
   try {
