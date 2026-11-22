@@ -51,31 +51,39 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
-//GET
-app.get("/api/products", async (req, res) => {
-  try {
-    const products = await Product.find().sort({ createdAt: -1 });
+//GET 상세조회
+app.get("/api/products/:id", async (req, res) => {
+  //URL에서 ID가져오기
+  const { id } = req.params;
+  //ObjectId 형식검사
+  if (!mongoose.isObjectIdOrHexString(id)) {
+    return res.status(400).json({
+      message: "올바르지 않은 상품 ID입니다.",
+    });
+  }
 
-    //상품 목록에 필요한 필드만 선택
-    const list = products.map((product) => ({
+  try {
+    const product = await Product.findById(id);
+    //해당 상품이 없는 경우
+    if (!product) {
+      return res.status(404).json({
+        message: "상품을 찾을 수 없습니다.",
+      });
+    }
+    //상세 조회 응답 데이터 구성
+    const productDetail = {
       id: product.id,
       name: product.name,
       description: product.description,
       price: product.price,
       tags: product.tags,
       createdAt: product.createdAt,
-    }));
-    const totalCount = list.length;
-
-    return res.status(200).json({
-      list,
-      totalCount,
-    });
+    };
+    return res.status(200).json(productDetail);
   } catch (error) {
-    console.error("상품 목록 조회 실패:", error);
-
+    console.error("상품 상세 조회 실패", error);
     return res.status(500).json({
-      message: "상품 목록 조회 중 서버 오류가 발생했습니다.",
+      message: "상품 상세 조회 중 서버 오류가 발생했습니다.",
     });
   }
 });
