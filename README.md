@@ -6,15 +6,20 @@ Express로 상품 API를 구현한 백엔드 프로젝트입니다. 상품은 Mo
 
 ```text
 .
-├── src/
-│   ├── server.js           # Express 실행, MongoDB 연결, 상태 확인
-│   ├── products-router.js  # 상품 조회·등록·수정·삭제
-│   ├── product.js          # Mongoose 상품 스키마
-│   └── http-error.js       # API 오류 응답
-├── .env.example            # 로컬 환경 변수 예시
-├── package.json            # 서버 실행 명령과 의존성
-├── compose.yaml            # 로컬 MongoDB 실행 설정
-└── render.yaml             # Render 백엔드 배포 설정
+├── app.js                         # Express 실행, MongoDB 연결, 상태 확인
+├── middlewares/
+│   ├── errorHandler.js            # API 오류 응답
+│   └── notFound.js                # 등록되지 않은 API 경로의 404 응답
+├── models/
+│   └── Product.js                 # Mongoose 상품 스키마
+├── routes/
+│   └── products.js                # 상품 조회·등록·수정·삭제
+├── script/
+│   └── seed.js                    # 예시 상품 추가
+├── .env.example                   # 로컬 환경 변수 예시
+├── package.json                   # 실행 명령과 의존성
+├── compose.yaml                   # 로컬 MongoDB 실행 설정
+└── render.yaml                    # Render 백엔드 배포 설정
 ```
 
 ## 로컬 실행
@@ -47,6 +52,8 @@ Node.js 22.13 이상과 MongoDB가 필요합니다. 프로젝트 루트에서 Po
    [서버 상태](http://127.0.0.1:3002/health)에서 `{"status":"ok"}`를 확인하고, [상품 목록](http://127.0.0.1:3002/api/products)을 열어 봅니다.
 
 코드를 수정할 때 서버를 자동으로 다시 시작하려면 `npm run dev`를 사용합니다. `PORT`의 기본값은 `3002`입니다. 프론트엔드 주소가 여러 개면 `CORS_ORIGINS`에 쉼표로 구분해 넣습니다.
+
+로컬 MongoDB에 예시 상품을 넣으려면 프로젝트 루트에서 `npm run seed`를 실행합니다. 같은 명령을 다시 실행해도 예시 상품은 한 번만 추가됩니다.
 
 ## 백엔드 API
 
