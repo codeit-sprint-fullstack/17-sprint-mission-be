@@ -2,6 +2,7 @@ import superstruct from 'superstruct';
 
 import { HttpException } from '../../exceptions/HttpException.js';
 import { BadRequestException } from '../../exceptions/BadRequestException.js';
+import { NotFoundException } from '../../exceptions/NotFoundException.js';
 import { InternalServerErrorException } from '../../exceptions/InternalServerErrorException.js';
 
 export function asyncErrorHandler(handler) {
@@ -41,6 +42,11 @@ function mapToHttpException(e) {
     // Known Error
     if (e instanceof superstruct.StructError) {
         return new BadRequestException('Validation failed', e.message);
+    }
+
+    // Prisma: update/delete 대상 레코드가 없을 때 (P2025)
+    if (e?.code === 'P2025') {
+        return new NotFoundException('Not found', e.meta?.cause ?? 'Record not found');
     }
 
     // 마지막까지 처리되지 않았다면, Unknown Error 입니다.

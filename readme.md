@@ -23,19 +23,16 @@
 npm run compose
 ```
 
-docker-compose 를 통해 실행했다면, mongodb 은 도커 내부에 자동적으로 만들어집니다.
+docker-compose 를 통해 실행했다면, PostgreSQL 은 도커 내부에 자동적으로 만들어지고 마이그레이션과 시딩까지 실행됩니다.
 
 아래는 자원의 접근 정보입니다.
 
 **DB**
 
-- `PORT` : 27017 (localhost:27017 으로 접근)
-- `USER_NAME` : root 
+- `PORT` : 5432 (localhost:5432 으로 접근)
+- `USER_NAME` : root
 - `USER_PASSWORD` : password
-
-**DB Viewer**
-
-- `PORT` : 8081 (localhost:8081 으로 접근)
+- `DATABASE` : panda_market
 
 **Service**
 
@@ -47,34 +44,37 @@ docker-compose 를 통해 실행했다면, mongodb 은 도커 내부에 자동�
 #### 준비물
 
 - nodejs
-- mongodb
+- PostgreSQL
 
 #### 실행 전, 필요한 작업
 
-1. `.env` 파일의 `DATABASE_URL` 
-
-MongoDB 접속정보를 환경변수에 반영해야 합니다.
-아래 포맷에 맞추어 `DATABASE_URL` 값을 수정해주세요.
-
-```
-DATABASE_URL=mongodb://{userName}:{password@{dbHost}:{dbPort}
-```
-
-2. DB Seeding (옵션)
-
-```
-npm run seed
-```
-
-3. 의존성 설치
-
-서비스가 동작하기 위해 필요한 라이브러리를 설치합니다.
+1. 의존성 설치 (Prisma Client 도 함께 생성됩니다)
 
 ```
 npm install
 ```
 
-4. 서비스 실행
+2. `.env` 파일 작성
+
+`.env.example` 을 참고해 PostgreSQL 접속정보를 `DATABASE_URL` 에 넣어주세요.
+
+```
+DATABASE_URL=postgresql://{userName}:{password}@{dbHost}:{dbPort}/{dbName}
+```
+
+3. 테이블 생성 (마이그레이션)
+
+```
+npm run migrate
+```
+
+4. DB Seeding (옵션)
+
+```
+npm run seed
+```
+
+5. 서비스 실행
 
 ```
 npm start
