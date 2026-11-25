@@ -17,6 +17,12 @@ export function asyncErrorHandler(handler) {
     };
 }
 
+// 라우터 밖에서 난 에러(express.json 파싱 실패 등)를 같은 형식으로 응답하는 전역 에러 미들웨어
+// eslint-disable-next-line no-unused-vars
+export function errorHandler(err, req, res, next) {
+    handleHttpException(mapToHttpException(err), res);
+}
+
 function handleHttpException(httpError, res) {
     res.status(httpError.status).send({
         name: httpError.name,
@@ -42,6 +48,11 @@ function mapToHttpException(e) {
     // Known Error
     if (e instanceof superstruct.StructError) {
         return new BadRequestException('Validation failed', e.message);
+    }
+
+    // express.json(body-parser) 에러: 깨진 JSON(400), 너무 큰 본문(413) 등. expose 는 클라이언트 잘못일 때만 true
+    if (e?.expose && e.status) {
+        return new HttpException({ status: e.status, name: 'Bad request body', message: e.message });
     }
 
     // Prisma: update/delete 대상 레코드가 없을 때 (P2025)
