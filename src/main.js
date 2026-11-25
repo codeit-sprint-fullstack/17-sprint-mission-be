@@ -4,16 +4,17 @@ dotenv.config({ path: path.join(path.resolve(), '.env') });
 
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 
 import { ProductRouter } from './routers/ProductRouter.js';
-
-mongoose.connect(process.env.MONGO_URL);
+import { ArticleRouter } from './routers/ArticleRouter.js';
+import { CommentRouter } from './routers/CommentRouter.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use('/products', ProductRouter);
+app.use('/articles', ArticleRouter);
+app.use('/comments', CommentRouter);
 
 app.listen(process.env.HTTP_PORT || 3000, () => console.log('Server started'));

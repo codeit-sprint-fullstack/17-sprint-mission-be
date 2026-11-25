@@ -1,4 +1,6 @@
-dockerize -wait mongodb://root:password@mongo-db:27017 -timeout 60s
+dockerize -wait tcp://postgres-db:5432 -timeout 60s
+
+npx prisma migrate deploy
 
 npm run seed
 
