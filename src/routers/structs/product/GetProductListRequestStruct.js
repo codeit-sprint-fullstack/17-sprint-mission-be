@@ -17,7 +17,7 @@ export const GetProductListRequestStruct = object({
         0,
     ),
     take: defaulted(
-        coerce(max(min(integer(), 1), 10), string(), (value) => Number.parseInt(value, 10)),
+        coerce(max(min(integer(), 1), 100), string(), (value) => Number.parseInt(value, 10)),
         10,
     ),
     orderBy: optional(enums(['recent'])),
