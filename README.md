@@ -25,6 +25,7 @@ npm install
 cp .env.example .env   # 값을 채웁니다
 npm run dev            # 개발 서버 (파일 변경 시 자동 재시작)
 npm start              # 배포용 실행
+npm run format         # Prettier로 코드 정리
 ```
 
 ### 환경 변수
@@ -75,8 +76,8 @@ Content-Type: application/json
 
 | 이름 | 설명 | 기본값 |
 | --- | --- | --- |
-| `page` | 페이지 번호 (1 이상, 아니면 1) | `1` |
-| `pageSize` | 한 페이지의 개수 (1~100으로 보정) | `10` |
+| `page` | 페이지 번호 (1 이상의 정수, 잘못된 값은 400) | `1` |
+| `pageSize` | 한 페이지의 개수 (1 이상 100 이하의 정수, 잘못된 값은 400) | `10` |
 | `keyword` | `name`, `description`에 포함된 단어로 검색 (대소문자 구분 없음) | 없음 |
 
 - 최신순(`createdAt` 내림차순)으로만 정렬합니다.
@@ -95,7 +96,7 @@ Content-Type: application/json
 
 | 상태 코드 | 경우 |
 | --- | --- |
-| `400` | 필수 값 누락, 가격이 숫자가 아니거나 음수, 잘못된 `id` 형식 |
+| `400` | 필수 값 누락, 가격이 숫자가 아니거나 음수, 잘못된 `id` 형식, 잘못된 `page`·`pageSize` |
 | `404` | 없는 상품, 없는 경로 |
 | `500` | 서버 내부 오류 (상세 내용은 서버 로그에만 기록) |
 
@@ -104,7 +105,7 @@ Content-Type: application/json
 - **에러 처리**: 라우트에서 `NotFoundError`를 던지고, 에러 처리 미들웨어 한 곳에서 상태 코드와 메시지로 바꿉니다. Express 5는 async 핸들러의 에러를 자동으로 넘겨서 `try/catch`가 필요 없습니다.
 - **검색 안전성**: 검색어의 정규식 특수문자를 일반 글자로 바꿔서(`escapeRegExp`) 잘못된 검색어로 서버가 오류를 내지 않습니다.
 - **CORS**: `CORS_ORIGINS`에 있는 출처만 허용합니다.
-- **페이지네이션**: `page`, `pageSize`는 거절하지 않고 범위로 보정하고, 목록과 `totalCount`를 `Promise.all`로 동시에 조회합니다.
+- **페이지네이션**: `page`, `pageSize`는 값이 없으면 기본값을 쓰고 잘못된 값은 400으로 알려주며, 목록과 `totalCount`를 `Promise.all`로 동시에 조회합니다.
 
 ## 폴더 구조
 
@@ -112,10 +113,16 @@ Content-Type: application/json
 .
 ├── package.json
 ├── .env.example
+├── .prettierrc
 └── src/
     ├── app.js                    # 서버 설정, CORS, 라우터·에러 핸들러 등록, DB 연결
     ├── models/Product.js         # Product 스키마
     ├── routes/products.js        # 상품 API 5개
-    ├── errors/NotFoundError.js   # 404 에러 클래스
-    └── middlewares/errorHandler.js
+    ├── errors/
+    │   ├── NotFoundError.js      # 404 에러 클래스
+    │   └── BadRequestError.js    # 400 에러 클래스
+    ├── middlewares/errorHandler.js
+    └── utils/
+        ├── escapeRegExp.js       # 검색어의 정규식 특수문자 처리
+        └── pagination.js         # page, pageSize 검사
 ```
