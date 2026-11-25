@@ -1,25 +1,22 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import { sequelize } from "../db.js";
 
-const productSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true, minlength: 1, maxlength: 10 },
-    description: { type: String, required: true, trim: true, minlength: 10, maxlength: 100 },
-    price: { type: Number, required: true, min: 1 },
-    tags: {
-      type: [String],
-      required: true,
-      validate: { validator: (tags = []) => tags.length > 0 && tags.every((tag) => tag.length <= 5), message: "태그를 하나 이상 입력하고 각 태그는 5자 이내로 작성해 주세요." },
+export const Product = sequelize.define("Product", {
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  name: { type: DataTypes.STRING(10), allowNull: false, validate: { notEmpty: true, len: [1, 10] } },
+  description: { type: DataTypes.STRING(100), allowNull: false, validate: { notEmpty: true, len: [10, 100] } },
+  price: { type: DataTypes.DECIMAL(12, 2), allowNull: false, validate: { min: 1 } },
+  tags: {
+    type: DataTypes.ARRAY(DataTypes.STRING(5)),
+    allowNull: false,
+    defaultValue: [],
+    validate: {
+      isArray(value) { if (!Array.isArray(value) || value.some((tag) => typeof tag !== "string" || tag.length > 5)) throw new Error("태그는 5자 이내의 문자열 배열이어야 합니다."); },
     },
   },
-  { timestamps: true, versionKey: false },
-);
-
-productSchema.set("toJSON", {
-  transform: (_document, returned) => {
-    returned.id = returned._id.toString();
-    delete returned._id;
-    return returned;
-  },
+  favoriteCount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: "favorite_count" },
+}, {
+  tableName: "products",
+  underscored: true,
+  timestamps: true,
 });
-
-export const Product = mongoose.model("Product", productSchema);
