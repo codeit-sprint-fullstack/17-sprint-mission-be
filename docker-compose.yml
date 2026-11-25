@@ -1,0 +1,38 @@
+version: '2.2'
+
+services:
+  postgres-db:
+    image: postgres:18
+    container_name: panda-market-db
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=panda_market
+    networks:
+      - panda-market-network
+    ports:
+      - '5432:5432'
+
+  service:
+    container_name: panda-market-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: no
+    environment:
+      # Application
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://root:password@postgres-db:5432/panda_market
+    networks:
+      - panda-market-network
+    ports:
+      - '13000:3000'
+    volumes:
+      - .:/app/
+    depends_on:
+      - postgres-db
+
+networks:
+  panda-market-network:
+    name: panda-market-network
