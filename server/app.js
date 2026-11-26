@@ -4,6 +4,7 @@ import express from "express";
 import { InputError, productDetails, readProduct } from "./product.js";
 import { prisma } from "./src/db.js";
 import { ProductRepository } from "./src/repository/ProductRepository.js";
+import { ArticleRouter } from "./src/routers/ArticleRouter.js";
 import { errorHandler } from "./src/routers/utils/asyncErrorHandler.js";
 
 export const app = express();
@@ -72,6 +73,7 @@ app.delete("/products/:id", async (req, res) => {
   res.status(204).end();
 });
 
+app.use("/articles", ArticleRouter);
 
 const clientDir = fileURLToPath(new URL("../client/dist/", import.meta.url));
 app.use(express.static(clientDir));
