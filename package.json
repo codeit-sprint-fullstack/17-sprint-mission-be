@@ -21,12 +21,14 @@
   },
   "homepage": "https://github.com/subin1015/17-sprint-mission-be#readme",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "cors": "^2.8.6",
     "dotenv": "^18.0.10",
-    "express": "^5.3.0",
-    "mongoose": "^9.12.2"
+    "express": "^5.3.0"
   },
   "devDependencies": {
-    "prettier": "^3.10.1"
+    "prettier": "^3.10.1",
+    "prisma": "^7.10.1"
   }
 }

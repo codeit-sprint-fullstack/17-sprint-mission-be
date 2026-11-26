@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import productsRouter from './routes/products.js';
 import errorHandler from './middlewares/errorHandler.js';
 
@@ -30,9 +29,6 @@ app.use((req, res) => {
     res.status(404).json({ message: '존재하지 않는 경로입니다.' });
 });
 app.use(errorHandler);
-
-await mongoose.connect(process.env.DATABASE_URL);
-console.log('MongoDB 연결 완료');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
