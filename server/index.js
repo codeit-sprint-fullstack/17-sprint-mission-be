@@ -1,17 +1,20 @@
-import mongoose from "mongoose";
 import { app } from "./app.js";
+import { prisma } from "./src/db.js";
 
-const port = process.env.PORT || 3001;
-const dbAddress = process.env.DB_CONNECT;
-if (!dbAddress) {
-  console.error("server/.env에 DB_CONNECT를 설정해 주세요.");
+const port = Number(process.env.PORT || 3001);
+if (!process.env.DATABASE_URL) {
+  console.error("server/.env에 DATABASE_URL을 설정해 주세요.");
   process.exit(1);
 }
 
 try {
-  await mongoose.connect(dbAddress);
-  app.listen(port, () => console.log(`판다마켓 서버를 시작했습니다. 포트 ${port}`));
+  await prisma.$connect();
+  const server = app.listen(port, () => console.log(`판다마켓 서버를 시작했습니다. 포트 ${port}`));
+  const close = () => server.close(() => prisma.$disconnect());
+  process.once("SIGINT", close);
+  process.once("SIGTERM", close);
 } catch {
-  console.error("MongoDB에 연결할 수 없습니다. 주소와 데이터베이스 실행 상태를 확인해 주세요.");
-  process.exit(1);
+  console.error("PostgreSQL 연결을 확인해 주세요.");
+  process.exitCode = 1;
+  await prisma.$disconnect();
 }

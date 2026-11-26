@@ -1,5 +1,3 @@
-import mongoose from "mongoose";
-
 const segmenter = new Intl.Segmenter("ko", { granularity: "grapheme" });
 
 function hasValidLength(text, min, max) {
@@ -11,30 +9,14 @@ function hasValidLength(text, min, max) {
   return count >= min;
 }
 
-const productSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true, validate: (value) => hasValidLength(value, 1, 10) },
-    description: { type: String, required: true, trim: true, validate: (value) => hasValidLength(value, 10, 100) },
-    price: { type: Number, required: true, min: 0, validate: Number.isSafeInteger },
-    tags: {
-      type: [String],
-      required: true,
-      validate: (tags) => tags.length > 0 && tags.every((tag) => hasValidLength(tag, 1, 5)),
-    },
-  },
-  { timestamps: true, versionKey: false },
-);
-
-export const Product = mongoose.model("Product", productSchema);
 export class InputError extends Error {}
 
 export function productDetails(product) {
   const { id, name, description, price, tags, createdAt } = product;
-  return { id, name, description, price, tags, createdAt };
+  return { id: String(id), name, description, price, tags, createdAt };
 }
 
-// 요청에서 상품 정보만 골라 받고, 스키마 검증 전에 입력 자료형을 확인한다.
-export function readProduct(body) {
+export function readProduct(body, required = false) {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new InputError("상품 정보를 JSON 객체로 보내 주세요.");
   }
@@ -57,5 +39,17 @@ export function readProduct(body) {
     product.tags = body.tags.map((tag) => tag.trim());
   }
   if (Object.keys(product).length === 0) throw new InputError("입력할 상품 정보가 없습니다.");
+  if ((required || product.name !== undefined) && !hasValidLength(product.name ?? "", 1, 10)) {
+    throw new InputError("상품명은 1~10글자로 입력해 주세요.");
+  }
+  if ((required || product.description !== undefined) && !hasValidLength(product.description ?? "", 10, 100)) {
+    throw new InputError("상품 설명은 10~100글자로 입력해 주세요.");
+  }
+  if ((required || product.price !== undefined) && (!Number.isInteger(product.price) || product.price < 0 || product.price > 2147483647)) {
+    throw new InputError("가격은 0 이상 2147483647 이하의 정수로 입력해 주세요.");
+  }
+  if ((required || product.tags !== undefined) && (!product.tags?.length || product.tags.some((tag) => !hasValidLength(tag, 1, 5)))) {
+    throw new InputError("태그를 한 개 이상 입력하고, 각 태그는 1~5글자로 입력해 주세요.");
+  }
   return product;
 }
