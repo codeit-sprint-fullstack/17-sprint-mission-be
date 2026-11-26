@@ -2,7 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import productsRouter from './routes/products.js';
+import articlesRouter from './routes/articles.js';
 import errorHandler from './middlewares/errorHandler.js';
+import commentsRouter from './routes/comments.js';
 
 if (!process.env.DATABASE_URL) {
     console.error('환경 변수 DATABASE_URL이 설정되지 않았습니다.');
@@ -24,6 +26,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/products', productsRouter);
+
+app.use('/articles', articlesRouter);
+
+app.use(commentsRouter);
 
 app.use((req, res) => {
     res.status(404).json({ message: '존재하지 않는 경로입니다.' });
