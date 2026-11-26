@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# prisma client (npx prisma generate로 생성)
+generated/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
