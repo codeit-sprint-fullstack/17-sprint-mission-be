@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node index.js",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy"
+    "db:migrate": "prisma migrate deploy",
+    "seed": "node seeding/seed.js",
+    "test": "node --test tests/mission6.test.js"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
