@@ -17,6 +17,16 @@ export default function errorHandler(err, req, res, next) {
                 .status(404)
                 .json({ message: '요청한 대상을 찾을 수 없습니다.' });
         }
+        // PostgreSQL은 NUL 문자를 받지 못한다 (오류 코드 22021)
+        if (err.meta?.driverAdapterError?.cause?.originalCode === '22021') {
+            return res
+                .status(400)
+                .json({ message: '사용할 수 없는 문자가 포함되어 있습니다.' });
+        }
+    }
+
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({ message: '요청 본문이 너무 큽니다.' });
     }
 
     if (err instanceof SyntaxError && err.status === 400) {
