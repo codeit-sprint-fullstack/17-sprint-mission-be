@@ -5,6 +5,7 @@ import { InputError, productDetails, readProduct } from "./product.js";
 import { prisma } from "./src/db.js";
 import { ProductRepository } from "./src/repository/ProductRepository.js";
 import { ArticleRouter } from "./src/routers/ArticleRouter.js";
+import { CommentRouter } from "./src/routers/CommentRouter.js";
 import { errorHandler } from "./src/routers/utils/asyncErrorHandler.js";
 
 export const app = express();
@@ -74,6 +75,7 @@ app.delete("/products/:id", async (req, res) => {
 });
 
 app.use("/articles", ArticleRouter);
+app.use(CommentRouter);
 
 const clientDir = fileURLToPath(new URL("../client/dist/", import.meta.url));
 app.use(express.static(clientDir));
